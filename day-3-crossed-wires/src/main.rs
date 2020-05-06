@@ -1,6 +1,6 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error, ErrorKind};
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 fn main() -> Result<(), Error> {
     let path = "input.txt";
@@ -22,9 +22,10 @@ fn main() -> Result<(), Error> {
         ));
     }
 
-    let mut points1: HashSet<String> = HashSet::new();
+    let mut points1: HashMap<String, i32> = HashMap::new();
     let mut start_x: i32 = 0;
     let mut start_y: i32 = 0;
+    let mut i: i32 = 0;
 
     for point in lines[0].split(",") {
         let dir =  &point[..1];
@@ -44,16 +45,36 @@ fn main() -> Result<(), Error> {
             )),
         }
 
-        if dir == "L" || dir == "R" {
+        if dir == "R" {
             for n in start_x..updated_x {
                 let key = format!("({},{})",n,start_y);
-                points1.insert(key);
+                points1.insert(key, i);
+                i = i + 1;
             }
             start_x = updated_x;
-        } else {
+        } else if dir == "L" {
+            let mut n = start_x;
+            while n > updated_x {
+                let key = format!("({},{})",n,start_y);
+                points1.insert(key, i);
+                i = i + 1;
+                n = n - 1;
+            }
+            start_x = updated_x;
+        } else if dir == "U" {
             for n in start_y..updated_y {
                 let key = format!("({},{})",start_x,n);
-                points1.insert(key);
+                points1.insert(key, i);
+                i = i + 1;
+            }
+            start_y = updated_y;
+        } else {
+            let mut n = start_y;
+            while n > updated_y {
+                let key = format!("({},{})",start_x,n);
+                points1.insert(key, i);
+                i = i + 1;
+                n = n - 1;
             }
             start_y = updated_y;
         }
@@ -61,6 +82,7 @@ fn main() -> Result<(), Error> {
 
     start_x = 0;
     start_y = 0;
+    i = 0;
 
     let mut result: i32 = 2147483647; // Max value of i32
 
@@ -82,28 +104,74 @@ fn main() -> Result<(), Error> {
             )),
         }
 
-        if dir == "L" || dir == "R" {
+        if dir == "R" {
             for n in start_x..updated_x {
                 let key = format!("({},{})",n,start_y);
-                if points1.contains(&key) {
-                    let manhattan_distance: i32 = find_manhattan_distance(n, start_y, 0 , 0);
 
-                    if manhattan_distance < result {
-                        result = manhattan_distance;
-                    }
+                if key == "(0,0)" {
+                    i = i + 1;
+                    continue;
                 }
+                
+                let steps = points1.get(&key); 
+                if points1.contains_key(&key) && steps.unwrap() + i < result{
+                    result = steps.unwrap() + i;
+                }
+                i = i + 1 
             }
             start_x = updated_x;
-        } else {
+        } else if dir == "L" {
+            let mut n = start_x;
+            while n > updated_x {
+                let key = format!("({},{})",n,start_y);
+
+                if key == "(0,0)" {
+                    i = i + 1;
+                    n = n - 1;
+                    continue;
+                }
+                
+                let steps = points1.get(&key); 
+                if points1.contains_key(&key) && steps.unwrap() + i < result {
+                    result = steps.unwrap() + i;
+                }
+                i = i + 1;
+                n = n - 1;
+            }
+            start_x = updated_x;
+        } else if dir == "U" {
             for n in start_y..updated_y {
                 let key = format!("({},{})",start_x,n);
-                if points1.contains(&key) {
-                    let manhattan_distance: i32 = find_manhattan_distance(start_x, n, 0 , 0);
 
-                    if manhattan_distance < result {
-                        result = manhattan_distance;
-                    }
+                if key == "(0,0)" {
+                    i = i + 1;
+                    continue;
                 }
+
+                let steps = points1.get(&key); 
+                if points1.contains_key(&key) && steps.unwrap() + i < result{
+                    result = steps.unwrap() + i;
+                }
+                i = i + 1 
+            }
+            start_y = updated_y;
+        } else {
+            let mut n = start_y;
+            while n > updated_y {
+                let key = format!("({},{})",start_x,n);
+
+                if key == "(0,0)" {
+                    i = i + 1;
+                    n = n - 1;
+                    continue;
+                }
+
+                let steps = points1.get(&key); 
+                if points1.contains_key(&key) && steps.unwrap() + i < result{
+                    result = steps.unwrap() + i;
+                }
+                i = i + 1;
+                n = n - 1;
             }
             start_y = updated_y;
         }
@@ -112,13 +180,4 @@ fn main() -> Result<(), Error> {
     println!("{}", result);
 
     Ok(())
-}
-
-fn find_manhattan_distance(x1: i32, y1: i32, x2: i32, y2: i32) -> i32 {
-    let x: i32 = x1 - x2;
-    let y: i32 = y1 - y2;
-
-    let manhattan_distance: i32 = x.abs() + y.abs();
-    
-    return manhattan_distance;
 }
