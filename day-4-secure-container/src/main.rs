@@ -24,20 +24,26 @@ fn main() -> Result<(), Error> {
     let range:Vec<&str> = lines[0].split("-").collect();
     let a = range[0].parse::<i32>().unwrap();
     let b = range[1].parse::<i32>().unwrap();
-    println!("{}, {}", a, b);
+    println!("Input: {}-{}", a, b);
 
-    let mut count: i32 = 0;
+    let mut count1: i32 = 0;
+    let mut count2: i32 = 0;
     for i in a..b {
-        if validate(i) {
-            count = count + 1
+        if validate_part1(i) {
+            count1 = count1 + 1
+        }
+
+        if validate_part2(i) {
+            count2 = count2 + 1
         }
     }
 
-    println!("{}", count);
+    println!("Part1: {}", count1);
+    println!("Part2: {}", count2);
     Ok(())
 }
 
-fn validate(num: i32) -> bool {
+fn validate_part1(num: i32) -> bool {
     let mut temp = num;
 
     let mut digits = Vec::new();
@@ -66,6 +72,51 @@ fn validate(num: i32) -> bool {
     }
 
     if similar_count == 0 {
+        return false
+    }
+
+    return true;
+}
+
+fn validate_part2(num: i32) -> bool {
+    let mut temp = num;
+
+    let mut digits = Vec::new();
+    while temp != 0 {
+        digits.push(temp % 10);
+        temp = temp / 10;
+    }
+
+    if digits.len() != 6 {
+        return false;
+    }
+
+    let mut prev: i32 = 0;
+    let mut similar_count: i32 = 1;
+    let mut has_similar: bool = false;
+    for (i, digit) in digits.iter().enumerate() {
+        if i == 0 {
+            prev = *digit;
+        } else {
+            if prev == *digit  {
+                similar_count = similar_count + 1;
+            } else if prev > *digit {
+                if similar_count == 2 {
+                    has_similar = true;
+                }
+                similar_count = 1
+            } else {
+                return false
+            }
+            prev = *digit;
+        }
+    }
+
+    if similar_count == 2 {
+        has_similar = true;
+    }
+
+    if !has_similar {
         return false
     }
 
