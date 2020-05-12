@@ -122,3 +122,34 @@ fn validate_part2(num: i32) -> bool {
 
     return true;
 }
+
+// Most unit tests go into a tests mod with the #[cfg(test)] attribute. Test functions are marked with the #[test] attribute.
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_validate_part1() {
+        assert_eq!(validate_part1(111111), true);
+        assert_eq!(validate_part1(223450), false);
+        assert_eq!(validate_part1(123789), false);
+        assert_eq!(validate_part1(112233), true);
+        assert_eq!(validate_part1(123444), true);
+        assert_eq!(validate_part1(111122), true);
+        assert_eq!(validate_part1(223333), true);
+        assert_eq!(validate_part1(223334), true);
+    }
+
+    #[test]
+    fn test_validate_part2() {
+        assert_eq!(validate_part2(111111), false);
+        assert_eq!(validate_part2(223450), false);
+        assert_eq!(validate_part2(123789), false);
+        assert_eq!(validate_part2(112233), true);
+        assert_eq!(validate_part2(123444), false);
+        assert_eq!(validate_part2(111122), true);
+        assert_eq!(validate_part2(223333), true);
+        assert_eq!(validate_part2(223334), true);
+    }
+}
